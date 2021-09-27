@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -17,8 +17,8 @@ var users = map[string]string{
 }
 
 type Credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required,email,min=5,max=100"`
+	Password string `json:"password" validate:"required,min=8"`
 }
 
 type Claims struct {
@@ -27,12 +27,16 @@ type Claims struct {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
 	var credentials Credentials
 	err := json.NewDecoder(r.Body).Decode(&credentials)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Username and Password not found !",
+		})
 		return
 	}
 
@@ -40,6 +44,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	if !ok || expectedPassword != credentials.Password {
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Password Error !",
+		})
 		return
 	}
 
@@ -52,38 +59,49 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(jwtKey)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Server Error !",
+		})
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:    "SefaToken",
-		Value:   tokenString,
-		Expires: expirationTime,
+	json.NewEncoder(w).Encode(map[string]string{
+		"token":  tokenString,
+		"status": "OK",
 	})
 }
 
-func AnotherRequest(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
+func TokenControl(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Header.Get("Authorization") == "" {
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Token not found",
+		})
 		return
 	}
 
-	tokenStr := cookie.Value
+	reqToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer ")
+	reqToken = splitToken[1]
+
+	if reqToken == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Invalid Token",
+		})
+		return
+	}
 
 	claims := &Claims{}
 
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+	tkn, err := jwt.ParseWithClaims(reqToken, claims,
 		func(t *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
@@ -91,16 +109,29 @@ func AnotherRequest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
 			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Invalid Token",
+			})
 			return
 		}
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Invalid Token",
+		})
 		return
 	}
 
 	if !tkn.Valid {
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Invalid Token",
+		})
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Hello, %s", claims.Username)))
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"kullanıcı": claims.Username,
+		"status":    "Token Kontrol Başarılı",
+	})
 }
