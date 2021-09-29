@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"go-rest-api/rabbitmq"
 	"go-rest-api/routes"
 )
 
@@ -16,4 +17,6 @@ func startServer() {
 func main() {
 	routes.Routes()
 	startServer()
+	rabbit := rabbitmq.RabbitMQConnect()
+	fmt.Printf("%v\n", rabbit)
 }
