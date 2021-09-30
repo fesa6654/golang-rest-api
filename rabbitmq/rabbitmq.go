@@ -12,15 +12,18 @@ type Rabbit struct {
 	rabChannel *amqp.Channel
 }
 
+type RabbitMQFunctions struct {
+}
+
 func RabbitMQConnect() *Rabbit {
 
 	amqpp, err := amqp.Dial("amqps://oryeecvq:Ba5zvf5J9JD5tObauu054nnssDfEJPXh@cow.rmq2.cloudamqp.com/oryeecvq")
 
 	if err != nil {
-		fmt.Printf("RabbitMQ Connection is not Running !")
+		fmt.Printf("RabbitMQ Connection is not Running !\n")
+	} else {
+		fmt.Printf("RabbitMQ Connection is Running !\n")
 	}
-
-	fmt.Printf("RabbitMQ Connection is Running !")
 
 	//Create a channel
 	ch, err := amqpp.Channel()

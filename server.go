@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"go-rest-api/mysql"
 	"go-rest-api/rabbitmq"
 	"go-rest-api/routes"
 )
@@ -15,8 +16,9 @@ func startServer() {
 }
 
 func main() {
+
+	mysql.ConnectToMySQL()
+	rabbitmq.RabbitMQConnect()
 	routes.Routes()
 	startServer()
-	rabbit := rabbitmq.RabbitMQConnect()
-	fmt.Printf("%v\n", rabbit)
 }
