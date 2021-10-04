@@ -4,6 +4,7 @@ import (
 	admin "golang-rest-api/api/controllers/admin"
 	bcrypt "golang-rest-api/api/controllers/bcrypt"
 	jwt_token "golang-rest-api/api/controllers/jwtToken"
+	rabbitmq_controlller "golang-rest-api/api/controllers/rabbitmq"
 
 	"github.com/gorilla/mux"
 )
@@ -16,6 +17,10 @@ var ApiRoutes = func(router *mux.Router) {
 	router.HandleFunc("/getAdminById/{adminId}", admin.GetAdminById).Methods("GET")
 	router.HandleFunc("/deleteAdminById/{adminId}", admin.DeleteAdminById).Methods("DELETE")
 	router.HandleFunc("/updateAdmin", admin.UpdateAdmin).Methods("PUT")
+
+	//RabbitMQ
+	router.HandleFunc("/rabbitmqSendDataToQueue", rabbitmq_controlller.RabbitmqSendDataToQueue).Methods("POST")
+	router.HandleFunc("/receiveDatasFromRabbitMQ", rabbitmq_controlller.ReceiveDatasFromRabbitMQ).Methods("POST")
 
 	//JWT Token
 	router.HandleFunc("/createJWTToken", jwt_token.CreateJWTToken).Methods("POST")

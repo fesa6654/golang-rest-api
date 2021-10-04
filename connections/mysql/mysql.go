@@ -1,6 +1,8 @@
 package mysql
 
 import (
+	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
@@ -15,6 +17,8 @@ func MySQLConnection() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("Database Connected !")
 
 	db = con
 }
