@@ -2,6 +2,7 @@ package routes
 
 import (
 	admin "golang-rest-api/api/controllers/admin"
+	bcrypt "golang-rest-api/api/controllers/bcrypt"
 	jwt_token "golang-rest-api/api/controllers/jwtToken"
 
 	"github.com/gorilla/mux"
@@ -19,4 +20,8 @@ var ApiRoutes = func(router *mux.Router) {
 	//JWT Token
 	router.HandleFunc("/createJWTToken", jwt_token.CreateJWTToken).Methods("POST")
 	router.HandleFunc("/checkJWTToken", jwt_token.CheckJWTToken).Methods("POST")
+
+	//Bcrypt
+	router.HandleFunc("/cryptPassword", bcrypt.CryptPassword).Methods("POST")
+	router.HandleFunc("/decryptPassword", bcrypt.DecryptPassword).Methods("POST")
 }
