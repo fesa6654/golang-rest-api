@@ -3,7 +3,7 @@ package admin
 import (
 	"encoding/json"
 	"fmt"
-	"golang-rest-api/api/models"
+	models "golang-rest-api/api/models/admin"
 	"golang-rest-api/api/utils"
 	"net/http"
 	"strconv"
