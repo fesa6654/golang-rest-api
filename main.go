@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -15,9 +16,16 @@ func main() {
 
 	r := mux.NewRouter()
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5000"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(r)
+
 	routes.ApiRoutes(r)
 
 	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe("localhost:5000", r))
+	log.Fatal(http.ListenAndServe("localhost:5000", handler))
 }
