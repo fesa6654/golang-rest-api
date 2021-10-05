@@ -2,6 +2,7 @@ package main
 
 import (
 	"golang-rest-api/api/routes"
+	"golang-rest-api/connections/rabbitmq"
 	"log"
 	"net/http"
 
@@ -9,6 +10,9 @@ import (
 )
 
 func main() {
+
+	rabbitmq.RabbitMQConnect()
+
 	r := mux.NewRouter()
 
 	routes.ApiRoutes(r)

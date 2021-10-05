@@ -1,6 +1,7 @@
 package rabbitmq_controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"golang-rest-api/connections/rabbitmq"
 	"net/http"
@@ -8,11 +9,9 @@ import (
 	"github.com/streadway/amqp"
 )
 
-var channel = rabbitmq.RabbitMQChannel()
-
 func RabbitmqSendDataToQueue(w http.ResponseWriter, r *http.Request) {
 
-	_, err := channel.QueueDeclare(
+	_, err := rabbitmq.RabbitChannel.QueueDeclare(
 		"TestQueue",
 		false,
 		false,
@@ -27,7 +26,7 @@ func RabbitmqSendDataToQueue(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// attempt to publish a message to the queue!
-	err = channel.Publish(
+	err = rabbitmq.RabbitChannel.Publish(
 		"",
 		"TestQueue",
 		false,
@@ -41,12 +40,18 @@ func RabbitmqSendDataToQueue(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Data Sended To Queue !",
+	})
 }
 
 func ReceiveDatasFromRabbitMQ(w http.ResponseWriter, r *http.Request) {
 
 	//Subscribe to RabbitMQ
-	msgs, err := channel.Consume(
+	msgs, err := rabbitmq.RabbitChannel.Consume(
 		"TestQueue",
 		"",
 		true,
@@ -62,6 +67,12 @@ func ReceiveDatasFromRabbitMQ(w http.ResponseWriter, r *http.Request) {
 
 	forever := make(chan bool)
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Data Got From Queue !",
+	})
+
 	go func() {
 		for d := range msgs {
 			fmt.Printf("Recieved Message: %s\n", d.Body)
@@ -69,4 +80,5 @@ func ReceiveDatasFromRabbitMQ(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	<-forever
+
 }

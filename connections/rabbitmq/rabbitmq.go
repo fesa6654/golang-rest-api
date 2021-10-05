@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	rabbitConnect *amqp.Connection
-	rabbitChannel *amqp.Channel
+	RabbitConnect *amqp.Connection
+	RabbitChannel *amqp.Channel
 )
 
 func RabbitMQConnect() {
@@ -21,16 +21,14 @@ func RabbitMQConnect() {
 		fmt.Printf("RabbitMQ Connection is Running !\n")
 	}
 
-	rabbitConnect = con
-}
+	RabbitConnect = con
 
-func RabbitMQChannel() *amqp.Channel {
-
-	ch, err := rabbitConnect.Channel()
+	ch, err := con.Channel()
 
 	if err != nil {
 		fmt.Println("RabbitMQ Channel Error !")
 	}
 
-	return ch
+	RabbitChannel = ch
+
 }
