@@ -5,6 +5,7 @@ import (
 	bcrypt "golang-rest-api/api/controllers/bcrypt"
 	jwt_token "golang-rest-api/api/controllers/jwtToken"
 	rabbitmq_controlller "golang-rest-api/api/controllers/rabbitmq"
+	"golang-rest-api/api/controllers/uuid"
 
 	"github.com/gorilla/mux"
 )
@@ -29,4 +30,7 @@ var ApiRoutes = func(router *mux.Router) {
 	//Bcrypt
 	router.HandleFunc("/cryptPassword", bcrypt.CryptPassword).Methods("POST")
 	router.HandleFunc("/decryptPassword", bcrypt.DecryptPassword).Methods("POST")
+
+	//uuid
+	router.HandleFunc("/generateUUID", uuid.GenerateUUID).Methods("GET")
 }
